@@ -1,5 +1,5 @@
 //Calculate the time the button  pressed
-void Button()
+/*void Button()
 {
   if (digitalRead(3) == 0)
   {
@@ -14,4 +14,4 @@ void Button()
       }
     }
   }  
-}
+}*/
