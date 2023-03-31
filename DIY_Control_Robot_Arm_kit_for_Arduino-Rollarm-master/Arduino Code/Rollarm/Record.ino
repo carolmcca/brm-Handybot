@@ -1,5 +1,5 @@
 //Read the values ot the potentiometers.
-void ReadKey()
+void ReadKey2()
 {
 
   if (Serial.available()) {

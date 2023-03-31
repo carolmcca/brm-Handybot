@@ -24,9 +24,9 @@ int Joint2[50] = {0};
 int Joint3[50] = {0};
 
 
-String KeyVal = "A";
+static String KeyVal = "S";
 int Time = 0;
-int M0 = 0, M1 = 0, M2 = 0, M3 = 0;
+int M0 = 120, M1 = 0, M2 = 0, M3 = 0;
 
 /*
  - setup function
@@ -35,7 +35,7 @@ void setup()
 {
   //Start the serial for debug.
   Serial.begin(9600);
-  
+  Serial.println("Ligado");
   //Attach the servos on pins to the servo object
   Servo_0.attach(4);
   Servo_1.attach(5);
@@ -45,41 +45,40 @@ void setup()
   //Set the pin 3 to input
   pinMode(3, INPUT);
 
-  Servo_1.write(10);
+  Servo_0.write(90);
+  Servo_1.write(M0);
+  Servo_2.write(90);
+  Servo_3.write(170);
 }
 
 /*
  - loop function
  * ---------------------------------------------------------------------------*/
+ void ReadKey() {
+  if (Serial.available()) {
+    KeyVal = Serial.readString();
+    Serial.println(KeyVal);
+  }
+}
+
 void loop() 
 {
  //Print the data.
-#ifdef DataPrint
-  while (1)
-  {
-    ReadPot();
-    Serial.print("SensVal[0]:");
-    Serial.println(SensVal[0]);
-    Serial.print("SensVal[1]:");
-    Serial.println(SensVal[1]);
-    Serial.print("SensVal[2]:");
-    Serial.println(SensVal[2]);
-    Serial.print("SensVal[3]:");
-    Serial.println(SensVal[3]);
-    delay(200);
-  }
-#endif
-
 
   //Did not press the button , open the manual mode.
 
 
   ReadKey();
-
+  
   //The first axis.   
   if (KeyVal == "U")
   {
-    M0 += 0.3;
+    M0 += 1;
+    Servo_1.write(M0); delay(10);
+  }
+  else if (KeyVal == "S")
+  {
+    M0 -= 1;
     Servo_1.write(M0); delay(10);
   }
 

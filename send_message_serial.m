@@ -1,15 +1,18 @@
 % Define the serial port
-port = serialport("COM3", 9600);
+serialportlist("available")
+port = serialport("COM10", 9600);
 
 % Open the serial port
 configureTerminator(port, "LF");
 flush(port);
 fopen(port);
-
+fscanf(port)
 % Send the message "up" to the serial port
-message = "u\n"; 
+message = "U"; 
 write(port, message, "char");
-pause(1)
-write(port, "s\n", "char");
+pause(5)
+write(port, "S", "char");
+pause(5)
 % Close the serial port
 fclose(port);
+clear port
