@@ -1,6 +1,6 @@
 % Define the serial port
 serialportlist("available")
-port = serialport("COM10", 9600);
+port = serialport("COM6", 9600);
 
 % Open the serial port
 configureTerminator(port, "LF");
