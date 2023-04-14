@@ -1,7 +1,7 @@
 warning('off', 'all');
 data = importdata('signal.txt');
 serialportlist("available")
-port = serialport("COM6", 9600);
+port = serialport("COM10", 9600);
 configureTerminator(port, "LF");
 flush(port);
 fopen(port);
@@ -15,7 +15,7 @@ th = 0.04;
 led_mode = [];
 for i = t
     x(end+1) = data(i);
-    pause(2/1000);
+    pause(10/1000);
     if length(x) == 100
         x = highpass(x, 20, 100);
         x = lowpass(x, 150, 100);

@@ -10,7 +10,7 @@
 /* Include ------------------------------------------------------------------*/
 // Create servo object to control a servo. 
 #include <Servo.h> 
-int ledPin = 2;
+//int ledPin = 13;
 Servo Servo_0;
 Servo Servo_1;
 Servo Servo_2;
@@ -26,7 +26,7 @@ int Joint3[50] = {0};
 
 static char KeyVal = 'A';
 int Time = 0;
-int M0 = 120, M1 = 0, M2 = 0, M3 = 0;
+int M0 = 10, M1 = 0, M2 = 0, M3 = 0;
 
 /*
  - setup function
@@ -41,7 +41,7 @@ void setup()
   Servo_1.attach(5);
   Servo_2.attach(6);
   Servo_3.attach(7);
-  pinMode(ledPin, OUTPUT);
+  //pinMode(ledPin, OUTPUT);
   //Set the pin 3 to input
   pinMode(3, INPUT);
 
@@ -67,15 +67,19 @@ void loop()
   //The first axis.   
   if (KeyVal == 'U')
   {
-    M0 += 1;
-    Servo_1.write(M0); delay(10);
-    digitalWrite(ledPin, HIGH);
+    if (M0 < 160){
+      M0 += 1;
+    }
+    Servo_1.write(M0);
+    //digitalWrite(ledPin, HIGH);
   }
   else if (KeyVal == 'S')
   {
-    M0 -= 1;
-    Servo_1.write(M0); delay(10);
-    digitalWrite(ledPin, LOW);
+    if (M0 > 10){
+      M0 -= 1;
+    }
+    Servo_1.write(M0);
+    //digitalWrite(ledPin, LOW);
   }
-
+  delay(50);
 }
