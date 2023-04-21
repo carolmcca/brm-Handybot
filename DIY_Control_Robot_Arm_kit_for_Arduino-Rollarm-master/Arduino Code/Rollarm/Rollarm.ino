@@ -26,7 +26,7 @@ int Joint3[50] = {0};
 
 static char KeyVal = 'A';
 int Time = 0;
-int M0 = 10, M1 = 0, M2 = 0, M3 = 0;
+int M0 = 10, M1 = 100, M2 = 0, M3 = 0;
 
 /*
  - setup function
@@ -47,7 +47,7 @@ void setup()
 
   Servo_0.write(90);
   Servo_1.write(M0);
-  Servo_2.write(90);
+  Servo_2.write(M1);
   Servo_3.write(170);
 }
 
@@ -70,7 +70,11 @@ void loop()
     if (M0 < 160){
       M0 += 1;
     }
+    if (M1 < 160){
+      M1 += 1;
+    }
     Servo_1.write(M0);
+    Servo_2.write(M0);
     //digitalWrite(ledPin, HIGH);
   }
   else if (KeyVal == 'S')
@@ -78,8 +82,12 @@ void loop()
     if (M0 > 10){
       M0 -= 1;
     }
+    if (M1 > 10){
+      M1 -= 1;
+    }
     Servo_1.write(M0);
+    Servo_2.write(M0);
     //digitalWrite(ledPin, LOW);
   }
-  delay(50);
+  delay(30);
 }
