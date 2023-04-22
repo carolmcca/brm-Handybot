@@ -2,7 +2,7 @@ import py.*
 import queue.*
 import select.*
 
-checker = py.importlib.import_module('msgChecker')
+checker = py.importlib.import_module('msgChecker.py')
 
 warning('off', 'all');
 
