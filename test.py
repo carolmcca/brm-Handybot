@@ -47,7 +47,7 @@ class TCPClient(object):
     def __init__(self):
         self.tcpIp = 'localhost'
         self.tcpPort = 5555
-        self.buffer_size = 99999
+        self.buffer_size = 1024
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.inputCheck = []
