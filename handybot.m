@@ -129,10 +129,10 @@ while (ishandle(rawEMGPlot))
         first_json = false;
     end
     
-    new_k = floor(length(emg_data)/samp_freq);
+    new_k = floor(length(emg_data(1,:))/samp_freq);
     if new_k > k
         k = new_k;
-        x = emg_data(end-samp_freq:end);
+        x = emg_data(1, end-samp_freq:end);
         disp(length(x))
         %x = highpass(x, 1, 100);
         value = rms(x);
@@ -150,7 +150,7 @@ while (ishandle(rawEMGPlot))
                  current_state = 0;
             end
         end
-         servo_state(end+1) = current_state;
+        servo_state(end+1) = current_state;
         set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
         set(servoStatePlot, 'XData', time_rms, 'Ydata', servo_state);
     end
