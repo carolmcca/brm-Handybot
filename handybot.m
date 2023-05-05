@@ -44,7 +44,7 @@ cont = true;
 points = 0;
 current_state = 0;
 
-servo_state = [];
+servo_state = [0 0];
 json_data = '';
 emg_data = [0 0];
 time = [0 0];
@@ -62,24 +62,23 @@ legend3 = 'Servo State';
 
 figure
 subplot(2,1,1);
-rawEMGPlot = plot(time_rms, emg_data, '-b');
+rawEMGPlot = plot(time, emg_data, '-b');
 legend(legend1);
 
 subplot(2,1,2);
 rmsEMGPlot = plot(time_rms, rms_signal, '-r');
 hold on;
-servoStatePlot = plot(time_rms, servo_state, '-g');
-legend(legend2);
+%servoStatePlot = plot(time_rms, servo_state, '-g');
+%legend(legend2);
 
 title(plotTitle, 'FontSize', 10);
 xlabel(xLabel, 'FontSize',10);
 ylabel(yLabel, 'FontSize', 10);
-drawnow
 
 %% MAIN LOOP
 
 tic
-while (ishandle(rawEMGPlot))
+while cont
     chunk = read(s, buffer_size, 'uint8');
     new_char = char(chunk);
     json_data = append(json_data,new_char);
@@ -94,20 +93,19 @@ while (ishandle(rawEMGPlot))
             
             current_size = length(emg_data(1,:));
             channel = 1;
-            for i = 1:length(fields)
+            for i = 1:length(available_devices)
                 for k = used_channels(i)-1:0
                      new_data = json_file.returnData.(available_devices{i})(:, end-k);
                      emg_data(channel, current_size+1:current_size+length(new_data)) = new_data;
                      channel = channel + 1;
                 end 
             end
-            
         end
         json_data = substrings(end);
         json_data = json_data{1};
     
         time = linspace(0,toc,length(emg_data));
-        set(rawEMGPlot, 'XData', time, 'Ydata', emg_data);
+        %set(rawEMGPlot, 'XData', time, 'Ydata', emg_data);
     end
 
     if contains(json_data, '}}}')
@@ -121,7 +119,7 @@ while (ishandle(rawEMGPlot))
         available_devices = fieldnames(json_file.returnData);
         
         for i=1:length(available_devices)
-            num_channels = length(json.returnData.(available_devices{1}).channels);
+            num_channels = length(json_file.returnData.(available_devices{1}).channels);
             used_channels(i) = num_channels;
         end
 
@@ -133,7 +131,6 @@ while (ishandle(rawEMGPlot))
     if new_k > k
         k = new_k;
         x = emg_data(1, end-samp_freq:end);
-        disp(length(x))
         %x = highpass(x, 1, 100);
         value = rms(x);
         rms_signal(end+1) = value;
@@ -141,21 +138,22 @@ while (ishandle(rawEMGPlot))
         if value>th
             if current_state ~= 1
                  write(port, "U", "char");
+                 disp('U')
                  current_state = 1;
             end
            
         else
             if current_state ~= 0
                  write(port, "S", "char");
+                 disp('S')
                  current_state = 0;
             end
         end
         servo_state(end+1) = current_state;
-        set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
-        set(servoStatePlot, 'XData', time_rms, 'Ydata', servo_state);
+        time_rms = linspace(0,toc,length(rms_signal));
+        %set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
+        %set(servoStatePlot, 'XData', time_rms, 'Ydata', servo_state);
     end
-
-    drawnow
 end
 
 %% END PROGRAM
