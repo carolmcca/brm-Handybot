@@ -24,9 +24,12 @@ int Joint2[50] = {0};
 int Joint3[50] = {0};
 
 
-static char KeyVal = 'A';
+static String KeyVal[2];
+static char delimeter = ';';
+int count = 0;
+// 
 int Time = 0;
-int M0 = 10, M1 = 100, M2 = 0, M3 = 0;
+int M0 = 10, M1 = 100, M2 = 0, M3 = 100;
 
 /*
  - setup function
@@ -48,24 +51,28 @@ void setup()
   Servo_0.write(90);
   Servo_1.write(M0);
   Servo_2.write(M1);
-  Servo_3.write(170);
+  Servo_3.write(M3);
 }
 
 /*
  - loop function
  * ---------------------------------------------------------------------------*/
- void ReadKey() {
+void ReadKey() {
   if (Serial.available()) {
-    KeyVal = Serial.read();
+    // KeyVal = Serial.read();
+    String input = Serial.readStringUntil('#');  // read the string until the '#' character is found
+    input.remove(input.length()-1)
+    count =input.split(delimeter, KeyVal,0);
+    char discart = Serial.read();
+    // Serial.println(uValue);  print the U value to the serial monitor
   }
 }
 
 void loop() 
 {
   ReadKey();
-  
   //The first axis.   
-  if (KeyVal == 'U')
+  if (KeyVal[0] == 'U')
   {
     if (M0 < 160){
       M0 += 1;
@@ -77,7 +84,7 @@ void loop()
     Servo_2.write(M0);
     //digitalWrite(ledPin, HIGH);
   }
-  else if (KeyVal == 'S')
+  else if (KeyVal[0] == 'S')
   {
     if (M0 > 10){
       M0 -= 1;
@@ -89,5 +96,25 @@ void loop()
     Servo_2.write(M0);
     //digitalWrite(ledPin, LOW);
   }
+
+  
+  //The second axis.   
+  if (KeyVal[1] == 'U')
+  {
+    if (M3 < 160){
+      M3 += 1;
+    }
+    Servo_3.write(M3);
+    //digitalWrite(ledPin, HIGH);
+  }
+  else if (KeyVal[1] == 'S')
+  {
+    if (M3 > 110){
+      M3 -= 1;
+    }
+    Servo_3.write(M3);
+    //digitalWrite(ledPin, LOW);
+  }
+  
   delay(30);
 }

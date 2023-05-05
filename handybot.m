@@ -130,25 +130,38 @@ while cont
     new_k = floor(length(emg_data(1,:))/samp_freq);
     if new_k > k
         k = new_k;
-        x = emg_data(1, end-samp_freq:end);
-        %x = highpass(x, 1, 100);
-        value = rms(x);
-        rms_signal(end+1) = value;
-        th = triangleThreshold(rms_signal, 24);
-        if value>th
-            if current_state ~= 1
-                 write(port, "U", "char");
-                 disp('U')
-                 current_state = 1;
-            end
-           
-        else
-            if current_state ~= 0
-                 write(port, "S", "char");
-                 disp('S')
-                 current_state = 0;
+        
+        for ch=1:size(emg_data,1) 
+
+            x = emg_data(1, end-samp_freq:end);
+            %x = highpass(x, 1, 100);
+            value = rms(x);
+            rms_signal(ch,end+1) = value;
+            th = triangleThreshold(rms_signal, 24);
+    
+            if value>th
+                if current_state ~= 1
+                     %write(port, "U", "char");
+                     strToSend = strToSend + "U;"
+                     %disp('U')
+                     current_state = 1;
+                end
+               
+            else
+                if current_state ~= 0
+                     %write(port, "S", "char");
+                     strToSend = strToSend + "S;"
+                     %disp('S')
+                     current_state = 0;
+                end
             end
         end
+
+        strToSend = strToSend+"#"
+        write(port, strToSend, "string");
+
+        disp(strToSend)
+        
         servo_state(end+1) = current_state;
         time_rms = linspace(0,toc,length(rms_signal));
         %set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
