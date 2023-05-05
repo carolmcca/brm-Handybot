@@ -21,15 +21,16 @@ s = tcpclient(ip_address, port_number);
 num_bytes = 9999;
 fopen(s);
 write(s, 'start'); % Signals OpenSignals that MatLab is ready to recieve data
+disp("connection done")
 
 %% CONNECTION TO ROBOT ARM
-
-serialportlist("available")
-port = serialport("COM10", 9600); % Change to the correct COM Port
-configureTerminator(port, "LF");
-flush(port);
-fopen(port);
-fscanf(port);
+% 
+% serialportlist("available")
+% port = serialport("COM10", 9600); % Change to the correct COM Port
+% configureTerminator(port, "LF");
+% flush(port);
+% fopen(port);
+% fscanf(port);
 
 %% ACQUISITON PARAMETERS AND VARIABLES
 
@@ -78,6 +79,7 @@ ylabel(yLabel, 'FontSize', 10);
 %% MAIN LOOP
 
 tic
+oldStrToSend = "";
 while cont
     chunk = read(s, buffer_size, 'uint8');
     new_char = char(chunk);
@@ -85,6 +87,7 @@ while cont
 
     if contains(json_data, '}}') && ~first_json
         substrings = split(json_data, '}}');
+
         for t=1:length(substrings)-1
             json_str = substrings(t);
             json_str = append(json_str{1},'}}');
@@ -93,9 +96,10 @@ while cont
             
             current_size = length(emg_data(1,:));
             channel = 1;
+
             for i = 1:length(available_devices)
-                for k = used_channels(i)-1:0
-                     new_data = json_file.returnData.(available_devices{i})(:, end-k);
+                for k = used_channels(i)-1:-1:0
+                    new_data = json_file.returnData.(available_devices{i})(:, end-k);
                      emg_data(channel, current_size+1:current_size+length(new_data)) = new_data;
                      channel = channel + 1;
                 end 
@@ -103,18 +107,20 @@ while cont
         end
         json_data = substrings(end);
         json_data = json_data{1};
-    
+
         time = linspace(0,toc,length(emg_data));
         %set(rawEMGPlot, 'XData', time, 'Ydata', emg_data);
     end
 
     if contains(json_data, '}}}')
+        disp("first json")
         substrings = split(json_data, '}}}');
         json_str = substrings(1);
         json_str = append(json_str{1},'}}}');
         json_data = substrings(2);
         json_data = json_data{1};
-    
+        
+
         json_file = jsondecode(json_str);
         available_devices = fieldnames(json_file.returnData);
         
@@ -124,42 +130,43 @@ while cont
         end
 
         emg_data = zeros(sum(used_channels), 2);
+        rms_signal = zeros(sum(used_channels), 2);
         first_json = false;
+        disp(num_channels)
     end
     
     new_k = floor(length(emg_data(1,:))/samp_freq);
     if new_k > k
         k = new_k;
-        
+        disp("new batch")
+        strToSend = "";
         for ch=1:size(emg_data,1) 
 
-            x = emg_data(1, end-samp_freq:end);
+            x = emg_data(ch, end-samp_freq:end);
             %x = highpass(x, 1, 100);
             value = rms(x);
-            rms_signal(ch,end+1) = value;
-            th = triangleThreshold(rms_signal, 24);
-    
+            rms_signal(ch,k) = value;
+            th = triangleThreshold(rms_signal(ch,:), 24);
             if value>th
-                if current_state ~= 1
-                     %write(port, "U", "char");
-                     strToSend = strToSend + "U;"
-                     %disp('U')
-                     current_state = 1;
-                end
-               
+                 %write(port, "U", "char");
+                 strToSend = strToSend + "U;";
+                 %disp('U')
+                 current_state = 1;
             else
-                if current_state ~= 0
-                     %write(port, "S", "char");
-                     strToSend = strToSend + "S;"
-                     %disp('S')
-                     current_state = 0;
-                end
+                 %write(port, "S", "char");
+                 strToSend = strToSend + "S;";
+                 %disp('S')
+                 current_state = 0;
             end
         end
 
-        strToSend = strToSend+"#"
-        write(port, strToSend, "string");
+        strToSend = strToSend+"#";
+        if strToSend ~= oldStrToSend
 
+            %write(port, strToSend, "string");
+            disp("Send")
+        end
+        oldStrToSend = strToSend;
         disp(strToSend)
         
         servo_state(end+1) = current_state;
