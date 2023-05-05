@@ -30,6 +30,7 @@ function [level]=triangleThreshold(signal,num_bins)
     %ax = gca;
     %hold on
     %hist = histogram(ax, signal, num_bins);
+    figure('Visible', 'off');
     hist = histogram(signal, num_bins);
     lehisto = hist.Values;
 %   Find maximum of histogram and its location along the x axis
@@ -83,5 +84,4 @@ function [level]=triangleThreshold(signal,num_bins)
     %plot(ax,[level, linex]/num_bins * hist.BinLimits(2), [lehisto(level), liney]); 
     %hold off
     level=(level/num_bins) * hist.BinLimits(2);
-    close 
 end
