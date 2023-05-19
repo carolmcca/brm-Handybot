@@ -24,13 +24,13 @@ write(s, 'start'); % Signals OpenSignals that MatLab is ready to recieve data
 disp("connection done")
 
 %% CONNECTION TO ROBOT ARM
-% 
-% serialportlist("available")
-% port = serialport("COM10", 9600); % Change to the correct COM Port
-% configureTerminator(port, "LF");
-% flush(port);
-% fopen(port);
-% fscanf(port);
+
+serialportlist("available")
+port = serialport("COM6", 9600); % Change to the correct COM Port
+configureTerminator(port, "LF");
+flush(port);
+fopen(port);
+fscanf(port);
 
 %% ACQUISITON PARAMETERS AND VARIABLES
 
@@ -78,6 +78,7 @@ ylabel(yLabel, 'FontSize', 10);
 
 %% MAIN LOOP
 
+pause(1)
 tic
 oldStrToSend = "";
 while cont
@@ -163,7 +164,7 @@ while cont
         strToSend = strToSend+"#";
         if strToSend ~= oldStrToSend
 
-            %write(port, strToSend, "string");
+            write(port, strToSend, "string");
             disp("Send")
         end
         oldStrToSend = strToSend;
