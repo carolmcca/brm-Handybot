@@ -44,6 +44,7 @@ k=0;
 cont = true;
 points = 0;
 current_state = 0;
+with_th = false;
 
 servo_state = [0 0];
 json_data = '';
@@ -109,7 +110,7 @@ while cont
         json_data = substrings(end);
         json_data = json_data{1};
 
-        time = linspace(0,toc,length(emg_data));
+        %time = linspace(0,toc,length(emg_data));
         %set(rawEMGPlot, 'XData', time, 'Ydata', emg_data);
     end
 
@@ -136,18 +137,13 @@ while cont
         disp(num_channels)
     end
     
-    new_k = floor(length(emg_data(1,:))/samp_freq);
-    if new_k > k
+    new_k = floor(length(emg_data(1,:))/50);
+    if new_k > k && with_th
         k = new_k;
-        disp("new batch")
         strToSend = "";
         for ch=1:size(emg_data,1) 
-
-            x = emg_data(ch, end-samp_freq:end);
-            %x = highpass(x, 1, 100);
+            x = emg_data(ch, end-50:end);
             value = rms(x);
-            rms_signal(ch,k) = value;
-            th = triangleThreshold(rms_signal(ch,:), 24);
             if value>th
                  %write(port, "U", "char");
                  strToSend = strToSend + "U;";
@@ -163,15 +159,23 @@ while cont
 
         strToSend = strToSend+"#";
         if strToSend ~= oldStrToSend
-
             write(port, strToSend, "string");
-            disp("Send")
+            disp(strToSend)
+            oldStrToSend = strToSend;
         end
-        oldStrToSend = strToSend;
-        disp(strToSend)
         
-        servo_state(end+1) = current_state;
-        time_rms = linspace(0,toc,length(rms_signal));
+        if length(emg_data(1,:))>30*100
+            for ch=1:size(emg_data,1)
+                thenvelopewindow=50;
+                [signal,~] = envelope(emg_data(ch,:), thenvelopewindow, 'rms');
+                th = triangleThreshold(signal, 24);
+            end
+            with_th = true;
+            emg_data = emg_data(:,end-15*100:end);
+            new_k = 0;
+        end
+
+        %time_rms = linspace(0,toc,length(rms_signal));
         %set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
         %set(servoStatePlot, 'XData', time_rms, 'Ydata', servo_state);
     end
