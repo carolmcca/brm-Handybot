@@ -24,7 +24,7 @@ int Joint2[50] = {0};
 int Joint3[50] = {0};
 
 
-static String KeyVal[3];
+char KeyVal[3];
 static char delimeter = ';';
 int count = 0;
 // 
@@ -58,21 +58,11 @@ void setup()
  - loop function
  * ---------------------------------------------------------------------------*/
 void ReadKey() {
-  /*
-  if (Serial.available()) {
-    // KeyVal = Serial.read();
-    String input = Serial.readStringUntil('#');  // read the string until the '#' character is found
-    input.remove(input.length()-1)
-    count =input.split(delimeter, KeyVal,0);
-    char discart = Serial.read();
-    // Serial.println(uValue);  print the U value to the serial monitor
-  }
-  */
     int i = 0;
     while (Serial.available() && i<3) {
       char receivedChar = Serial.read();
       if (receivedChar == '#') {
-        Serial.flush();
+        //Serial.flush();
         break;
       }
       else if (receivedChar == ';' || receivedChar == '\n') {
@@ -82,7 +72,6 @@ void ReadKey() {
         KeyVal[i] = receivedChar;
         i++;
       }
-      Serial.println(KeyVal);
     }
 }
 
@@ -140,14 +129,14 @@ void loop()
     if (M2 < 160){
       M2 += 1;
     }
-    Servo_2.write(M2);
+    Servo_0.write(M2);
     //digitalWrite(ledPin, HIGH);
   } else if (KeyVal[2] == 'S')
   {
     if (M2 > 10){
-      M2 -= 1;
+      M2 -= 1; 
     }
-    Servo_2.write(M2);
+    Servo_0.write(M2);
     //digitalWrite(ledPin, LOW);
   } 
   
