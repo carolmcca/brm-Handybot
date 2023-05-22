@@ -26,7 +26,7 @@ disp("connection done")
 %% CONNECTION TO ROBOT ARM
 
 serialportlist("available")
-port = serialport("COM6", 9600); % Change to the correct COM Port
+port = serialport("/dev/ttyACM0", 9600); % Change to the correct COM Port
 configureTerminator(port, "LF");
 flush(port);
 fopen(port);
@@ -52,6 +52,7 @@ emg_data = [0 0];
 time = [0 0];
 rms_signal = [0 0];
 time_rms = [0 0];
+th = [];
 
 %% PLOTS CONFIGURATION
 
@@ -127,14 +128,15 @@ while cont
         available_devices = fieldnames(json_file.returnData);
         
         for i=1:length(available_devices)
-            num_channels = length(json_file.returnData.(available_devices{1}).channels);
+            num_channels = length(json_file.returnData.(available_devices{i}).channels);
             used_channels(i) = num_channels;
         end
 
         emg_data = zeros(sum(used_channels), 2);
         rms_signal = zeros(sum(used_channels), 2);
         first_json = false;
-        disp(num_channels)
+        disp(used_channels)
+        tic
     end
     
     new_k = floor(length(emg_data(1,:))/50);
@@ -144,7 +146,7 @@ while cont
         for ch=1:size(emg_data,1) 
             x = emg_data(ch, end-50:end);
             value = rms(x);
-            if value>th
+            if value>th(ch)
                  %write(port, "U", "char");
                  strToSend = strToSend + "U;";
                  %disp('U')
@@ -163,21 +165,21 @@ while cont
             disp(strToSend)
             oldStrToSend = strToSend;
         end
-        
-        if length(emg_data(1,:))>30*100
-            for ch=1:size(emg_data,1)
-                thenvelopewindow=50;
-                [signal,~] = envelope(emg_data(ch,:), thenvelopewindow, 'rms');
-                th = triangleThreshold(signal, 24);
-            end
-            with_th = true;
-            emg_data = emg_data(:,end-15*100:end);
-            new_k = 0;
-        end
 
         %time_rms = linspace(0,toc,length(rms_signal));
         %set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
         %set(servoStatePlot, 'XData', time_rms, 'Ydata', servo_state);
+    end
+
+    if length(emg_data(1,:))>30*100
+            for ch=1:size(emg_data,1)
+                thenvelopewindow=50;
+                [signal,~] = envelope(emg_data(ch,:), thenvelopewindow, 'rms');
+                th(ch)= triangleThreshold(signal, 24);
+            end
+            with_th = true;
+            emg_data = emg_data(:,end-15*100:end);
+            new_k = 0;
     end
 end
 
