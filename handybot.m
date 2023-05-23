@@ -59,22 +59,30 @@ legend1 = 'Channel 1';
 legend2 = 'Channel 2';
 legend3 = 'Channel 3';
 
-figure
+figure(1)
 subplot(3,1,1);
 channel1plot = plot(time, emg_data(1,:), '-b');
+title(plotTitle, 'FontSize', 10);
 legend(legend1);
+ylim([-2 2]);
+xlabel(xLabel, 'FontSize',10);
+ylabel(yLabel, 'FontSize', 10);
 
 subplot(3,1,2);
 channel2plot = plot(time, emg_data(2,:), '-r');
 legend(legend2);
+ylim([-2 2]);
+xlabel(xLabel, 'FontSize',10);
+ylabel(yLabel, 'FontSize', 10);
 
 subplot(3,1,3);
 channel3plot = plot(time, emg_data(3,:), '-g');
 legend(legend3);
-
-title(plotTitle, 'FontSize', 10);
+ylim([-2 2]);
 xlabel(xLabel, 'FontSize',10);
 ylabel(yLabel, 'FontSize', 10);
+
+
 
 %% MAIN LOOP
 
@@ -108,11 +116,13 @@ while cont
         end
         json_data = substrings(end);
         json_data = json_data{1};
-
-        time = linspace(0,toc,length(emg_data(1,:)));
-        set(channel1plot, 'XData', time, 'Ydata', emg_data(1,:));
-        set(channel2plot, 'XData', time, 'Ydata', emg_data(2,:));
-        set(channel3plot, 'XData', time, 'Ydata', emg_data(3,:));
+        
+        if ishandle(channel1plot)
+            time = linspace(0,toc,length(emg_data(1,:)));
+            set(channel1plot, 'XData', time, 'Ydata', emg_data(1,:));
+            set(channel2plot, 'XData', time, 'Ydata', emg_data(2,:));
+            set(channel3plot, 'XData', time, 'Ydata', emg_data(3,:));
+        end
     end
 
     if contains(json_data, '}}}')
@@ -179,6 +189,12 @@ while cont
             emg_data = emg_data(:,end-15*100:end);
             new_k = 0;
     end
+
+    if ~ishandle(channel1plot)
+        cont = false;
+    end
+    disp(ishandle(channel3plot))
+    pause(0.01)
 end
 
 %% END PROGRAM
