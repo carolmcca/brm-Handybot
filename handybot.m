@@ -175,7 +175,13 @@ while cont
             for ch=1:size(emg_data,1)
                 thenvelopewindow=50;
                 [signal,~] = envelope(emg_data(ch,:), thenvelopewindow, 'rms');
-                th(ch)= triangleThreshold(signal, 24);
+                new_th = triangleThreshold(signal, 24);
+                if ~with_th
+                    th(ch) = new_th;
+                elseif new_th > 0.7*th(ch) && with_th
+                    th(ch) = new_th;
+                end
+
             end
             with_th = true;
             emg_data = emg_data(:,end-15*100:end);
