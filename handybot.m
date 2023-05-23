@@ -35,7 +35,6 @@ fscanf(port);
 %% ACQUISITON PARAMETERS AND VARIABLES
 
 samp_freq = 100;
-th = 0.04;
 buffer_size = 1024;
 used_channels = [];
 
@@ -46,12 +45,9 @@ points = 0;
 current_state = 0;
 with_th = false;
 
-servo_state = [0 0];
 json_data = '';
-emg_data = [0 0];
+emg_data = [0 0;0 0;0 0];
 time = [0 0];
-rms_signal = [0 0];
-time_rms = [0 0];
 th = [];
 
 %% PLOTS CONFIGURATION
@@ -59,20 +55,22 @@ th = [];
 plotTitle = 'EMG Signal';
 xLabel = 'Time (s)';
 yLabel = 'Voltage (mV)';
-legend1 = 'EMG Raw';
-legend2 = 'RMS Signal';
-legend3 = 'Servo State';
+legend1 = 'Channel 1';
+legend2 = 'Channel 2';
+legend3 = 'Channel 3';
 
 figure
-subplot(2,1,1);
-rawEMGPlot = plot(time, emg_data, '-b');
+subplot(3,1,1);
+channel1plot = plot(time, emg_data(1,:), '-b');
 legend(legend1);
 
-subplot(2,1,2);
-rmsEMGPlot = plot(time_rms, rms_signal, '-r');
-hold on;
-%servoStatePlot = plot(time_rms, servo_state, '-g');
-%legend(legend2);
+subplot(3,1,2);
+channel2plot = plot(time, emg_data(2,:), '-r');
+legend(legend2);
+
+subplot(3,1,3);
+channel3plot = plot(time, emg_data(3,:), '-g');
+legend(legend3);
 
 title(plotTitle, 'FontSize', 10);
 xlabel(xLabel, 'FontSize',10);
@@ -111,8 +109,10 @@ while cont
         json_data = substrings(end);
         json_data = json_data{1};
 
-        %time = linspace(0,toc,length(emg_data));
-        %set(rawEMGPlot, 'XData', time, 'Ydata', emg_data);
+        time = linspace(0,toc,length(emg_data(1,:)));
+        set(channel1plot, 'XData', time, 'Ydata', emg_data(1,:));
+        set(channel2plot, 'XData', time, 'Ydata', emg_data(2,:));
+        set(channel3plot, 'XData', time, 'Ydata', emg_data(3,:));
     end
 
     if contains(json_data, '}}}')
@@ -147,14 +147,10 @@ while cont
             x = emg_data(ch, end-50:end);
             value = rms(x);
             if value>th(ch)
-                 %write(port, "U", "char");
                  strToSend = strToSend + "U;";
-                 %disp('U')
                  current_state = 1;
             else
-                 %write(port, "S", "char");
                  strToSend = strToSend + "S;";
-                 %disp('S')
                  current_state = 0;
             end
         end
@@ -165,10 +161,6 @@ while cont
             disp(strToSend)
             oldStrToSend = strToSend;
         end
-
-        %time_rms = linspace(0,toc,length(rms_signal));
-        %set(rmsEMGPlot, 'XData', time_rms, 'Ydata', rms_signal);
-        %set(servoStatePlot, 'XData', time_rms, 'Ydata', servo_state);
     end
 
     if length(emg_data(1,:))>30*100
