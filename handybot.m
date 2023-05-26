@@ -63,6 +63,7 @@ figure
 subplot(3,1,1);
 channel1plot = plot(time, emg_data(1,:), '-b');
 legend(legend1);
+ylims([-1 1])
 
 subplot(3,1,2);
 channel2plot = plot(time, emg_data(2,:), '-r');
