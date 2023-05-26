@@ -9,7 +9,6 @@
 %     obtained from OpenSignals via TCP/IP port. At least one Bitalino
 %     board should be connected to OpenSignals in order to run this program
 
-
 clear all; clc; close all;
 warning('off', 'all');
 
@@ -133,7 +132,6 @@ while cont
         json_data = substrings(2);
         json_data = json_data{1};
         
-
         json_file = jsondecode(json_str);
         available_devices = fieldnames(json_file.returnData);
         

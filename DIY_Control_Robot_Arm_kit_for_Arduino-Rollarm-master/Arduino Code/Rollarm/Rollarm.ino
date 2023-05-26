@@ -79,7 +79,6 @@ void loop()
 {
   ReadKey();
   
-  //PRIMEIRO 
   if (KeyVal[0] == 'U')
   {
     if (M0 < 160){

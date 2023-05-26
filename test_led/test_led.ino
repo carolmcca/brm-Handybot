@@ -4,7 +4,6 @@ int ledPin2 = 6;
 int ledPin3 = 11;
 char KeyVal[3];
 // Setup function runs once when Arduino is powered on or reset
-
 int M0 = 0, M1 = 0, M2 = 0;
 void setup() {
   // Initialize serial communication at a baud rate of 9600
