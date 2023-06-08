@@ -108,8 +108,8 @@ while cont
             for i = 1:length(available_devices)
                 for k = used_channels(i)-1:-1:0
                     new_data = json_file.returnData.(available_devices{i})(:, end-k);
-                     emg_data(channel, current_size+1:current_size+length(new_data)) = new_data;
-                     channel = channel + 1;
+                    emg_data(channel, current_size+1:current_size+length(new_data)) = new_data;
+                    channel = channel + 1;
                 end 
             end
         end
